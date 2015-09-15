@@ -9,6 +9,10 @@
 #import <Accounts/Accounts.h>
 
 @interface DkNappSocialModule : TiModule
+<
+UIPopoverControllerDelegate,
+UIPopoverPresentationControllerDelegate
+>
 {
     ACAccountStore* accountStore;
 	UIPopoverController *popoverController;
@@ -21,8 +25,13 @@
 @property(nonatomic,readonly) NSNumber *ACTIVITY_MAIL;
 @property(nonatomic,readonly) NSNumber *ACTIVITY_PRINT;
 @property(nonatomic,readonly) NSNumber *ACTIVITY_COPY;
-@property(nonatomic,readonly) NSNumber *ACTIVITY_ASSIGN_CONTATCT;
+@property(nonatomic,readonly) NSNumber *ACTIVITY_ASSIGN_CONTACT;
 @property(nonatomic,readonly) NSNumber *ACTIVITY_SAVE_CAMERA;
+@property(nonatomic,readonly) NSNumber *ACTIVITY_READING_LIST;
+@property(nonatomic,readonly) NSNumber *ACTIVITY_FLICKR;
+@property(nonatomic,readonly) NSNumber *ACTIVITY_VIMEO;
+@property(nonatomic,readonly) NSNumber *ACTIVITY_AIRDROP;
+@property(nonatomic,readonly) NSNumber *ACTIVITY_TENCENT_WEIBO;
 @property(nonatomic,readonly) NSNumber *ACTIVITY_CUSTOM;
 
 @end

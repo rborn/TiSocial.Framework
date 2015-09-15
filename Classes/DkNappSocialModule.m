@@ -11,13 +11,14 @@
 #import "TiUtils.h"
 #import "TiApp.h"
 #import "NappCustomActivity.h"
+#import "NappItemProvider.h"
 
 //include Social and Accounts Frameworks
 #import <Social/Social.h>
 #import <Accounts/Accounts.h>
 
-//for iOS5 twitter framework
-#import <Twitter/Twitter.h>
+#import "TiUIButtonProxy.h"
+#import "TiUIViewProxy.h"
 
 @implementation DkNappSocialModule
 
@@ -30,9 +31,19 @@ MAKE_SYSTEM_PROP(ACTIVITY_MESSAGE, UIActivityTypeMessage);
 MAKE_SYSTEM_PROP(ACTIVITY_MAIL, UIActivityTypeMail);
 MAKE_SYSTEM_PROP(ACTIVITY_PRINT, UIActivityTypePrint);
 MAKE_SYSTEM_PROP(ACTIVITY_COPY, UIActivityTypeCopyToPasteboard);
-MAKE_SYSTEM_PROP(ACTIVITY_ASSIGN_CONTATCT, UIActivityTypeAssignToContact);
+MAKE_SYSTEM_PROP(ACTIVITY_ASSIGN_CONTACT, UIActivityTypeAssignToContact);
 MAKE_SYSTEM_PROP(ACTIVITY_SAVE_CAMERA, UIActivityTypeSaveToCameraRoll);
+
+// iOS7+
+MAKE_SYSTEM_PROP(ACTIVITY_READING_LIST, UIActivityTypeAddToReadingList);
+MAKE_SYSTEM_PROP(ACTIVITY_FLICKR, UIActivityTypePostToFlickr);
+MAKE_SYSTEM_PROP(ACTIVITY_VIMEO, UIActivityTypePostToVimeo);
+MAKE_SYSTEM_PROP(ACTIVITY_AIRDROP, UIActivityTypeAirDrop);
+MAKE_SYSTEM_PROP(ACTIVITY_TENCENT_WEIBO, UIActivityTypePostToTencentWeibo);
+
+// Custom
 MAKE_SYSTEM_PROP(ACTIVITY_CUSTOM, 100);
+
 
 #pragma mark Internal
 
@@ -55,7 +66,10 @@ MAKE_SYSTEM_PROP(ACTIVITY_CUSTOM, 100);
 	// this method is called when the module is first loaded
 	// you *must* call the superclass
 	[super startup];
-	
+
+	popoverController = nil;
+	accountStore = nil;
+
 	NSLog(@"[INFO] %@ loaded",self);
 }
 
@@ -73,9 +87,7 @@ MAKE_SYSTEM_PROP(ACTIVITY_CUSTOM, 100);
 
 -(void)dealloc
 {
-	// release any resources that have been retained by the module
-    RELEASE_TO_NIL(popoverController);
-    RELEASE_TO_NIL(accountStore);
+	// release any resources that have been retained by the module (project uses ARC now)
 	[super dealloc];
 }
 
@@ -200,7 +212,7 @@ MAKE_SYSTEM_PROP(ACTIVITY_CUSTOM, 100);
 /*
  * Accounts
  */
--(id)twitterAccountList:(id)args
+-(void)twitterAccountList:(id)args
 {
     if(accountStore == nil){
         accountStore =  [[ACAccountStore alloc] init];
@@ -262,9 +274,31 @@ MAKE_SYSTEM_PROP(ACTIVITY_CUSTOM, 100);
     controller.completionHandler = myBlock;
     
     //get the properties from javascript
-    NSString * shareText = [TiUtils stringValue:@"text" properties:args def:nil];
-    NSString * shareUrl = [TiUtils stringValue:@"url" properties:args def:nil];
-    NSString * shareImage = [TiUtils stringValue:@"image" properties:args def:nil];
+    NSString *shareText = [TiUtils stringValue:@"text" properties:args def:nil];
+    NSString *emailText = [TiUtils stringValue:@"htmlText" properties:args def:nil];
+
+    NSString *shareUrl = [TiUtils stringValue:@"url" properties:args def:nil];
+    
+    //added M Hudson 22/10/14 to allow for blob support
+    //see if we passed in a string reference to the file or a TiBlob object
+    
+    id TiImageObject = [args objectForKey:@"image"];
+    
+    if([TiImageObject isKindOfClass:[TiBlob class]]){
+        NSLog(@"[INFO] Found an image", nil);
+        UIImage* blobImage = [(TiBlob*)TiImageObject image];
+        if (blobImage != nil) {
+            NSLog(@"[INFO] blob is not null", nil);
+            [controller addImage: blobImage];
+        }
+    } else {
+        NSLog(@"[INFO] Think it is a string", nil);
+        NSString * shareImage = [TiUtils stringValue:@"image" properties:args def:nil];
+        if (shareImage != nil) {
+            [controller addImage: [self findImage:shareImage]];
+        }
+        
+    }
     
     BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
     
@@ -276,12 +310,10 @@ MAKE_SYSTEM_PROP(ACTIVITY_CUSTOM, 100);
         [controller addURL:[NSURL URLWithString:shareUrl]];
     }
     
-    if (shareImage != nil) {
-        [controller addImage: [self findImage:shareImage]];
-    }
-    
     [[TiApp app] showModalController:controller animated:animated];
 
+	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:platform, @"platform",nil];
+	[self fireEvent:@"dialogOpen" withObject:nil];
 }
 
 /*
@@ -553,44 +585,6 @@ MAKE_SYSTEM_PROP(ACTIVITY_CUSTOM, 100);
     
     if(NSClassFromString(@"SLComposeViewController") != nil){
         [self shareToNetwork:SLServiceTypeTwitter args:args];
-    }else{
-        // iOS5 Support
-        ENSURE_SINGLE_ARG(args, NSDictionary);
-        
-        if ([TWTweetComposeViewController canSendTweet])
-        {
-            TWTweetComposeViewController *tweetSheet = [[TWTweetComposeViewController alloc] init];
-            
-            NSString *url = [args objectForKey:@"url"];
-            NSString *message = [args objectForKey:@"text"];
-            
-            if (message != nil) {
-                [tweetSheet setInitialText: message];
-            }
-            
-            if (url != nil) {
-                [tweetSheet addURL:[TiUtils toURL:url proxy:nil]];
-            }
-            
-            tweetSheet.completionHandler = ^(TWTweetComposeViewControllerResult result) {
-	
-			    if (result == TWTweetComposeViewControllerResultCancelled) {
-			        NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"success",@"twitter",@"platform",nil];
-			        [self fireEvent:@"cancelled" withObject:event];
-			    } else {
-			        NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES),@"success",@"twitter",@"platform",nil];
-			        [self fireEvent:@"complete" withObject:event];
-			    }
-	
-                [[TiApp app] hideModalController:tweetSheet animated:YES];
-                [tweetSheet release];
-            };
-            
-            [[TiApp app] showModalController:tweetSheet animated:YES];
-        } else {
-            NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"success",@"cannot send tweet",@"status", @"twitter",@"platform", nil];
-            [self fireEvent:@"error" withObject:event];
-        }
     }
 }
 
@@ -722,17 +716,76 @@ MAKE_SYSTEM_PROP(ACTIVITY_CUSTOM, 100);
     }
 
     // Get Properties from JavaScript
-    NSString *shareText = [TiUtils stringValue:@"text" properties:arguments def:@""];
-    NSString *shareImage = [TiUtils stringValue:@"image" properties:arguments def:nil];
+    NSString *shareText = [TiUtils stringValue:@"text" properties:arguments def:nil];
+    NSString *emailText = [TiUtils stringValue:@"htmlText" properties:arguments def:nil];
+    NSString *shareURL = [TiUtils stringValue:@"url" properties:arguments def:nil];
+    NSURL *URL = [NSURL URLWithString:[TiUtils stringValue:shareURL]];
+
     NSString *removeIcons = [TiUtils stringValue:@"removeIcons" properties:arguments def:nil];
-    UIImage *image = [self findImage:shareImage];
-    NSArray *activityItems = [NSArray arrayWithObjects:shareText,image, nil];
+    NSString *shareImage = [TiUtils stringValue:@"image" properties:arguments def:nil];
+    BOOL emailIsHTML = [TiUtils boolValue:@"emailIsHTML" properties:arguments def:NO];
     
-    UIActivityViewController *avc = [[UIActivityViewController alloc] initWithActivityItems: activityItems applicationActivities:nil];
+    NSDictionary *platformAppendText = [arguments objectForKey:@"platformAppendText"];
+
+    NSMutableArray *activityItems = [[NSMutableArray alloc] init];
     
+    // image
+    // added M Hudson 22/10/14 to allow for blob support
+    
+    id TiImageObject = [arguments objectForKey:@"image"];
+    if(TiImageObject != nil){
+        
+        // TiBlob object ?
+        if([TiImageObject isKindOfClass:[TiBlob class]]){
+        
+            UIImage *image = [(TiBlob*)TiImageObject image];
+            if(image){
+                [activityItems addObject:image];
+            }
+           
+        // or link
+        } else {
+            
+            NSString *shareImage = [TiUtils stringValue:@"image" properties:arguments def:nil];
+            if (shareImage != nil) {
+                UIImage *image = [self findImage:shareImage];
+                if(image){
+                    [activityItems addObject:image];
+                }
+            }
+        }
+    }
+ 
+    // custom provider
+    NappItemProvider *textItem = [[NappItemProvider alloc] initWithPlaceholderItem:@""];
+        
+    // strings
+    textItem.customText = shareText;
+    
+    if(emailText) {
+        textItem.customTextMail = emailText;
+    }
+    
+    textItem.shareURL = shareURL;
+    textItem.URL = URL;
+    
+    textItem.platformAppendText = platformAppendText;
+
+    
+    [activityItems addObject:textItem];
+
+    
+    // share url
+    if(shareURL) {
+        [activityItems addObject:shareURL];
+    }
+    
+	UIActivityViewController *avc;
+
 	// Custom Activities
-    NSMutableArray * activities = [[NSMutableArray alloc] init];
     if (customActivities != nil){
+        
+		NSMutableArray * activities = [[NSMutableArray alloc] init];
         for (int i = 0; i < [customActivities count]; i++) {
             NSDictionary *activityDictionary = [customActivities objectAtIndex:i];
             NSString * activityImage = [TiUtils stringValue:@"image" properties:activityDictionary def:nil];
@@ -741,6 +794,7 @@ MAKE_SYSTEM_PROP(ACTIVITY_CUSTOM, 100);
 				[TiUtils stringValue:@"title" properties:activityDictionary def:@""], @"title",
 				[self findImage:activityImage], @"image",
 				self, @"module",
+				[activityDictionary objectForKey:@"callback"], @"callback",
 			nil];
 
             NappCustomActivity *nappActivity = [[NappCustomActivity alloc] initWithSettings:activityStyling];
@@ -748,11 +802,18 @@ MAKE_SYSTEM_PROP(ACTIVITY_CUSTOM, 100);
             
         }
 
-        avc = [[UIActivityViewController alloc] initWithActivityItems: activityItems applicationActivities:activities];
-    } 
-    
-    
-    // Custom Icons
+        avc = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:activities];
+	} else {
+		avc = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];
+	}
+	
+    // mail subject
+	NSString *subject = [TiUtils stringValue:@"subject" properties:arguments def:nil];
+	if (subject) {
+		[avc setValue:subject forKey:@"subject"];
+	}
+
+    // remove activity icons
     if (removeIcons != nil) {
         NSMutableArray * excludedIcons = [self activityIcons:removeIcons];
         [avc setExcludedActivityTypes:excludedIcons];
@@ -779,7 +840,7 @@ MAKE_SYSTEM_PROP(ACTIVITY_CUSTOM, 100);
 			NSDictionary *event = @{
 				@"success": @YES,
 				@"platform": @"activityView",
-				@"activity": NUMINT(activity),
+				@"activity": NUMLONG(activity),
 				@"activityName": act
 			};
 			[self fireEvent:@"complete" withObject:event];
@@ -816,25 +877,91 @@ MAKE_SYSTEM_PROP(ACTIVITY_CUSTOM, 100);
     }
     
     // Get Properties from JavaScript
-    NSString *shareText = [TiUtils stringValue:@"text" properties:arguments def:@""];
-    NSString *shareImage = [TiUtils stringValue:@"image" properties:arguments def:nil];
+    NSString *shareText = [TiUtils stringValue:@"text" properties:arguments def:nil];
+    NSString *emailText = [TiUtils stringValue:@"htmlText" properties:arguments def:nil];
+    NSString *shareURL = [TiUtils stringValue:@"url" properties:arguments def:nil];
+    NSURL *URL = [NSURL URLWithString:[TiUtils stringValue:shareURL]];
+
     NSString *removeIcons = [TiUtils stringValue:@"removeIcons" properties:arguments def:nil];
+    NSString *shareImage = [TiUtils stringValue:@"image" properties:arguments def:nil];
     NSArray *passthroughViews = [arguments objectForKey:@"passthroughViews"];
-    UIBarButtonItem * senderButton = [arguments objectForKey:@"view"];
+    BOOL emailIsHTML = [TiUtils boolValue:@"emailIsHTML" properties:arguments def:NO];
+    
+    NSDictionary *platformAppendText = [arguments objectForKey:@"platformAppendText"];
+    
+    id senderButton = [arguments objectForKey:@"view"];
     
     if (senderButton == nil) {
         NSLog(@"[ERROR] You must specify a source button - property: view");
         return;
     }
+    
+    NSString* viewType = NSStringFromClass([senderButton class]);
+    
+    if (![viewType isEqualToString:@"TiUIButtonProxy"] && ![viewType isEqualToString:@"TiUIViewProxy"]) {
+        NSLog(@"[ERROR] property: view - must be a button or view");
+        return;
+    }
+    
+    //NSLog(@"[INFO] Button Found", nil);
+    //NSLog(@"[INFO] View Type: %@", viewType);
+    
+    //CGRect rect = [TiUtils rectValue: [(TiUIViewProxy*)senderButton view]];
+    //NSLog(@"[INFO] Size: x: %f,y: %f, width: %f, height: %f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
 
-    UIImage *image = [self findImage:shareImage];
-    NSArray *activityItems = [NSArray arrayWithObjects:shareText,image, nil];
+    NSMutableArray *activityItems = [[NSMutableArray alloc] init];
+    
+    // custom provider
+    NappItemProvider *textItem = [[NappItemProvider alloc] initWithPlaceholderItem:@""];
+    
+    // strings
+    textItem.customText = shareText;
+    
+    if(emailText) {
+        textItem.customTextMail = emailText;
+    }
+    
+    textItem.shareURL = shareURL;
+    textItem.URL = URL;
+    
+    textItem.platformAppendText = platformAppendText;
+    
+    [activityItems addObject:textItem];
+    
 
-    UIActivityViewController *avc = [[UIActivityViewController alloc] initWithActivityItems: activityItems applicationActivities:nil];
+    // share url
+	if(shareURL){
+		[activityItems addObject:shareURL];
+	}
+	
+    // image
+    id TiImageObject = [arguments objectForKey:@"image"];
+    if(TiImageObject != nil){
+        //see if we passed in a string reference to the file or a TiBlob object
+        if([TiImageObject isKindOfClass:[TiBlob class]]){
+            
+            UIImage *image = [(TiBlob*)TiImageObject image];
+            if(image){
+                [activityItems addObject:image];
+            }
+            
+        } else {
+            
+            NSString *shareImage = [TiUtils stringValue:@"image" properties:arguments def:nil];
+            if (shareImage != nil) {
+                UIImage *image = [self findImage:shareImage];
+                if(image){
+                    [activityItems addObject:image];
+                }
+            }
+        }
+    }
+	
+    UIActivityViewController *avc;
     
     // Custom Activities
-    NSMutableArray * activities = [[NSMutableArray alloc] init];
     if (customActivities != nil){
+		NSMutableArray * activities = [[NSMutableArray alloc] init];
         for (int i = 0; i < [customActivities count]; i++) {
             NSDictionary *activityDictionary = [customActivities objectAtIndex:i];
             NSString * activityImage = [TiUtils stringValue:@"image" properties:activityDictionary def:nil];
@@ -842,6 +969,7 @@ MAKE_SYSTEM_PROP(ACTIVITY_CUSTOM, 100);
                 [TiUtils stringValue:@"type" properties:activityDictionary def:@""], @"type",
                 [TiUtils stringValue:@"title" properties:activityDictionary def:@""], @"title",
                 [self findImage:activityImage], @"image",
+				[activityDictionary objectForKey:@"callback"], @"callback",
                 self, @"module",
             nil];
 
@@ -851,8 +979,15 @@ MAKE_SYSTEM_PROP(ACTIVITY_CUSTOM, 100);
         }
 
         avc = [[UIActivityViewController alloc] initWithActivityItems: activityItems applicationActivities:activities];
-    }
-    
+	} else {
+		avc = [[UIActivityViewController alloc] initWithActivityItems: activityItems applicationActivities:nil];
+	}
+
+	NSString *subject = [TiUtils stringValue:@"subject" properties:arguments def:nil];
+	if (subject) {
+		[avc setValue:subject forKey:@"subject"];
+	}
+
     // Custom Icons
     if (removeIcons != nil) {
         NSMutableArray * excludedIcons = [self activityIcons:removeIcons];
@@ -879,7 +1014,7 @@ MAKE_SYSTEM_PROP(ACTIVITY_CUSTOM, 100);
 			NSDictionary *event = @{
 				@"success": @YES,
 				@"platform": @"activityPopover",
-				@"activity": NUMINT(activity),
+				@"activity": NUMLONG(activity),
 				@"activityName": act
 			};
 			[self fireEvent:@"complete" withObject:event];
@@ -893,7 +1028,46 @@ MAKE_SYSTEM_PROP(ACTIVITY_CUSTOM, 100);
         [self setPassthroughViews:passthroughViews];
     }
 
-    [popoverController presentPopoverFromBarButtonItem:senderButton permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+    TiThreadPerformOnMainThread(^{
+        
+        if ([TiUtils isIOS8OrGreater]) {
+            
+            
+            [avc setModalPresentationStyle:UIModalPresentationPopover];
+            
+            if ([senderButton isMemberOfClass:[TiUIButtonProxy class]]) {
+                UIBarButtonItem* buttonItem = [(TiUIButtonProxy*)senderButton barButtonItem];
+                avc.popoverPresentationController.barButtonItem = buttonItem;
+            }
+            else if ([senderButton isMemberOfClass:[TiUIViewProxy class]]) {
+                UIView* sourceView = [(TiUIViewProxy*)senderButton view];
+                avc.popoverPresentationController.sourceView = [[TiApp controller] view];
+                CGPoint centerPoint = [sourceView center];
+                avc.popoverPresentationController.sourceRect = CGRectMake(centerPoint.x, centerPoint.y, 1.0f, 1.0f);
+            }
+            else {
+                return;
+            }
+            
+            avc.popoverPresentationController.permittedArrowDirections = UIPopoverArrowDirectionAny;
+            
+            //[[TiApp app] showModalController:avc animated:YES];
+            [[[TiApp app]controller] presentViewController:avc animated:YES completion:nil];
+            
+            return;
+        }
+        
+        // iOS 7 and below
+        if ([senderButton isMemberOfClass:[TiUIButtonProxy class]]) {
+            UIBarButtonItem* buttonItem = [(TiUIButtonProxy*)senderButton barButtonItem];
+            [popoverController presentPopoverFromBarButtonItem:buttonItem permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+        }
+        else if ([senderButton isMemberOfClass:[TiUIViewProxy class]]) {
+            UIView* sourceView = [(TiUIViewProxy*)senderButton view];
+            [popoverController presentPopoverFromRect:sourceView.frame inView:[[TiApp controller] view] permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+        }
+        
+    }, YES);
 }
 
 -(void)setPassthroughViews:(id)args
@@ -910,17 +1084,38 @@ MAKE_SYSTEM_PROP(ACTIVITY_CUSTOM, 100);
 
 -(NSMutableArray *)activityIcons:(NSString *)removeIcons
 {
-    NSDictionary *iconMapping = @{
-		@"twitter": UIActivityTypePostToTwitter,
-		@"facebook": UIActivityTypePostToFacebook,
-		@"mail": UIActivityTypeMail,
-		@"sms": UIActivityTypeMessage,
-		@"copy": UIActivityTypeCopyToPasteboard,
-		@"contact": UIActivityTypeAssignToContact,
-		@"weibo": UIActivityTypePostToWeibo,
-		@"print": UIActivityTypePrint,
-		@"camera": UIActivityTypeSaveToCameraRoll
-	};
+    NSMutableDictionary *iconMapping = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+        UIActivityTypePostToTwitter, @"twitter",
+        UIActivityTypePostToFacebook, @"facebook",
+        UIActivityTypeMail, @"mail",
+        UIActivityTypeMessage, @"sms",
+        UIActivityTypeCopyToPasteboard, @"copy",
+        UIActivityTypeAssignToContact, @"contact",
+        UIActivityTypePostToWeibo, @"weibo",
+        UIActivityTypePrint, @"print",
+        UIActivityTypeSaveToCameraRoll, @"camera",
+        nil
+    ];
+    
+    if (&UIActivityTypeAddToReadingList) {
+        [iconMapping setValue:UIActivityTypeAddToReadingList forKey:@"readinglist"];
+    }
+    
+    if (&UIActivityTypePostToFlickr) {
+        [iconMapping setValue:UIActivityTypePostToFlickr forKey:@"flickr"];
+    }
+    
+    if (&UIActivityTypePostToVimeo) {
+        [iconMapping setValue:UIActivityTypePostToVimeo forKey:@"vimeo"];
+    }
+    
+    if (&UIActivityTypeAirDrop) {
+        [iconMapping setValue:UIActivityTypeAirDrop forKey:@"airdrop"];
+    }
+    
+    if (&UIActivityTypePostToTencentWeibo) {
+        [iconMapping setValue:UIActivityTypePostToTencentWeibo forKey:@"tencentweibo"];
+    }
 
     NSArray *icons = [removeIcons componentsSeparatedByString:@","];
     NSMutableArray *excludedIcons = [[NSMutableArray alloc] init];
@@ -932,4 +1127,29 @@ MAKE_SYSTEM_PROP(ACTIVITY_CUSTOM, 100);
 
     return excludedIcons;
 }
+
+#pragma mark - UIPopoverPresentationController Delegate
+- (void)prepareForPopoverPresentation:(UIPopoverPresentationController *)popoverPresentationController
+{
+    NSLog(@"[INFO] prepareForPopoverPresentation");
+    
+    UIViewController* presentingController = [popoverPresentationController presentingViewController];
+    popoverPresentationController.sourceView = [presentingController view];
+    CGRect viewrect = [[presentingController view] bounds];
+    if (viewrect.size.height > 50) {
+        viewrect.size.height = 50;
+    }
+    popoverPresentationController.sourceRect = viewrect;
+}
+
+- (void)popoverPresentationController:(UIPopoverPresentationController *)popoverPresentationController willRepositionPopoverToRect:(inout CGRect *)rect inView:(inout UIView **)view
+{
+    NSLog(@"[INFO] popoverPresentationController:willRepositionPopoverToRect");
+}
+
+- (void)popoverPresentationControllerDidDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
+{
+    NSLog(@"[INFO] popoverPresentationControllerDidDismissPopover");
+}
+
 @end

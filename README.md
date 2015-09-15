@@ -15,9 +15,9 @@ The module is licensed under the MIT license.
 ## Referencing the module in your Titanium Mobile application ##
 
 Simply add the following lines to your `tiapp.xml` file:
-    
+
     <modules>
-        <module platform="iphone">dk.napp.social</module> 
+        <module platform="iphone">dk.napp.social</module>
     </modules>
 
 
@@ -50,20 +50,20 @@ Each of these options is optional
 
 `requestParameter` is optional, but is build like this:
 
-	{
-		'screen_name': 'C_BHole'
-	}
+    {
+        'screen_name': 'CBeloch'
+    }
 
-So *screen_name* is the parameter name / key and *C_BHole* is the value of the parameter
+So *screen_name* is the parameter name / key and *CBeloch* is the value of the parameter
 
 ### Social.twitterAccountList()
-Returns a list of twiiter accounts. use the EventListener `accountList` to capture this list. 
+Returns a list of twiiter accounts. use the EventListener `accountList` to capture this list.
 
 ```javascript
 Social.addEventListener("accountList", function(e){
-	Ti.API.info("Accounts:");
-	accounts = e.accounts; //accounts
-	Ti.API.info(accounts);
+    Ti.API.info("Accounts:");
+    accounts = e.accounts; //accounts
+    Ti.API.info(accounts);
 });
 Social.twitterAccountList();
 ```
@@ -94,14 +94,14 @@ Each of these options is optional
 
 `requestParameter` is optional, but is build like this:
 
-	{
-		fields: 'id,name,devices'
-	}
+    {
+        fields: 'id,name,devices'
+    }
 
 So *fields* is the parameter name / key and *id,name,devices* is the value of the parameter
 
 ### Social.grantFacebookPermissions
-Before you can send request to the Facebook API, you start by getting the users permissions. 
+Before you can send request to the Facebook API, you start by getting the users permissions.
 
 ```javascript
 var fbAccount;
@@ -109,8 +109,8 @@ Social.grantFacebookPermissions({
     appIdKey:"YOUR_FB_APP_ID",
     permissionsKey: "email" //FB docs: https://developers.facebook.com/docs/reference/login/extended-permissions/
 });
-Social.addEventListener("facebookAccount", function(e){ 
-	fbAccount = e.account; //now you have stored the FB account. You can then request facebook using the below method 
+Social.addEventListener("facebookAccount", function(e){
+    fbAccount = e.account; //now you have stored the FB account. You can then request facebook using the below method
 });
 ```
 
@@ -121,7 +121,7 @@ Request Facebook with a specific account.
 ```javascript
 Social.requestFacebookWithIdentifier({
     requestType:"GET",
-    accountWithIdentifier: fbAccount["identifier"], //start by granting facebook permissions 
+    accountWithIdentifier: fbAccount["identifier"], //start by granting facebook permissions
     url:"https://graph.facebook.com/me",
     callbackEvent: "facebookProfile",
 }, {
@@ -131,8 +131,8 @@ Social.requestFacebookWithIdentifier({
 
 ### Social.renewFacebookAccessToken
 
-The accessToken will eventually be invalid, if you store the FB acccount in a App property or storage of some kind. This method can renew the accessToken, and make you able to request Facebook again. 
-This method rely on the same *facebookAccount* eventlistener, as `grantFacebookPermissions`. 
+The accessToken will eventually be invalid, if you store the FB acccount in a App property or storage of some kind. This method can renew the accessToken, and make you able to request Facebook again.
+This method rely on the same *facebookAccount* eventlistener, as `grantFacebookPermissions`.
 
 ```javascript
 Social.renewFacebookAccessToken();
@@ -166,50 +166,81 @@ Each of these options is optional
 * **ACTIVITY_COPY**: UIActivityTypeCopyToPasteboard
 * **ACTIVITY_ASSIGN_CONTATCT**: UIActivityTypeAssignToContact
 * **ACTIVITY_SAVE_CAMERA**: UIActivityTypeSaveToCameraRoll
+* **ACTIVITY_READING_LIST**: UIActivityTypeAddToReadingList
+* **ACTIVITY_FLICKR**: UIActivityTypePostToFlickr
+* **ACTIVITY_VIMEO**: UIActivityTypePostToVimeo
+* **ACTIVITY_AIRDROP**: UIActivityTypeAirDrop
+* **ACTIVITY_TENCENT_WEIBO**: UIActivityTypePostToTencentWeibo
 * **ACTIVITY_CUSTOM**: Custom Activities
 
 ### Events
 
-* **complete**: Fired when user complete using a Activity. Here, you can verify witch activity user have choiced by *activity* event property. When dealing with customActivities, you can get the *activityName* property.
-* **cancelled**: Fired when user not completed request.
+* **complete**: Fired when the user completes using an Activity. Here, you can verify which activity the user has selected by checking the *activity* event property. When dealing with customActivities, you can get the *activityName* property.
+* **cancelled**: Fired when user did not complete the request.
 
 ### Social.activityView()
-`options` can have the following keys:
+The first required `options` argument can have the following keys:
 
 * *text* - the status message
+* *htmlText* - html message to use in the e-mail activity (requires emailIsHTML = true). If null will use the "text" message
+* *url* - a url you want to share
 * *image* - a local/remote path to an image you want to share
 * *removeIcons* - customise the dialog by removing unwanted icons.
+* *emailIsHTML* - Optional boolean flag that tells if email content should be in html format.
+* *subject* - a subject to be used when sharing through email
+* *platformAppendText* - an object with custom strings to add to different share providers. Possible values are: "twitter", "message", "whatsapp" or the id of the extension like "com.buffer.buffer.BufferComposeExtension". Facebook is not included, because the new FacebookSDK only allows for sharing URLs.
 
-The second argument is an array with objects. This argument is optional. Use this to create custom UIActivities. 
+The second optional argument is an array with objects. Use this to create custom UIActivities.
 The posibilties are almost endless. have a look at: *http://uiactivities.com* for inspiration.
 
 ```javascript
 Social.activityView({
     text:"share like a king!",
+    subject:"I would like to share this with you",
     image:"pin.png",
-    removeIcons:"print,sms,copy,contact,camera,mail"
+    removeIcons:"print,sms,copy,contact,camera,mail",
+    emailIsHTML : false,
+
+    platformAppendText: {
+        twitter: ' via @twitter #twitter',
+        message: ' via www.example.com',
+        whatsapp: ' via 555-1234567',
+        'com.buffer.buffer.BufferComposeExtension': ' via Buffer'
+    }
+
 },[
-	{
-		title:"Custom Share",
-		type:"hello.world",
-		image:"pin.png"
-	},
-	{
-		title:"Open in Safari",
-		type:"open.safari",
-		image:"safari.png"
-	}
+    {
+        title:"Custom Share",
+        type:"hello.world",
+        image:"pin.png",
+        callback: function(e) {
+            alert("You chose me!");
+        }
+    },
+    {
+        title:"Open in Safari",
+        type:"open.safari",
+        image:"safari.png"
+    }
 ]);
 ```
 
 ### Social.activityPopover() (iPad only)
-`options` can have the following keys:
+The first required `options` argument can have the following keys:
 
 * *text* - the status message
+* *htmlText* - html message to use in the e-mail activity (requires emailIsHTML = true). If null will use the "text" message
+* *url* - a url you want to share
 * *image* - a local/remote path to an image you want to share
 * *removeIcons* - customise the dialog by removing unwanted icons.
 * *view* - the source button
+* *emailIsHTML* - Optional boolean flag that tells if email content should be in html format.
+* *subject* - a subject to be used when sharing through email
+* *platformAppendText* - an object with custom strings to add to different share providers. Possible values are: "twitter", "message", "whatsapp" or the id of the extension like "com.buffer.buffer.BufferComposeExtension". Facebook is not included, because the new FacebookSDK only allows for sharing URLs.
 
+The second optional argument is an array with objects. Use this to create custom UIActivities.
+
+See `Social.activityView()`.
 
 ## Example of usage
 
@@ -222,6 +253,66 @@ Please check the *Example* section in the file.
 
 
 ## Changelog
+
+***v.1.8.2***
+
+* Support HTML text for email and plain text for other activities   
+
+***v.1.8.1***
+
+* Added support for iOS8 Popover (@adesugbaa)
+
+***v.1.8.0***
+
+* Avoiding conflict with new Facebook module (#129)
+
+***v.1.7.10***
+
+* Added missing URL option to iPad activity sheet
+* Added subject for email as mentioned in #112
+* Fixed a potential memory leak
+
+***v.1.7.9***
+
+* Fixed issue with popover not showing on iPad
+
+***v1.7.8***
+
+* Added support for 64-bit. Previous attempt was incorrect.
+
+***v1.7.7***
+
+* Added support for email only html customization
+
+***v1.7.6***
+
+* Added support for 64-bit
+
+**v1.7.5**  
+
+* Built with SDK 3.4.0, works on iOS 8. Changed project to use ARC, removed iOS 5 support (some deprecated stuff)
+
+**v1.7.4**  
+
+* Remove iOS8- specific build flags
+
+**v1.7.3**  
+
+* Bugfix for unsupported iOS6 sharing types
+
+**v1.7.2**  
+
+* Added url property for activityView to support Reading List
+* fixed image sharing
+
+**v1.7.1**  
+
+* Added new activities in iOS7: `ACTIVITY_READING_LIST`, `ACTIVITY_FLICKR`, `ACTIVITY_VIMEO`, `ACTIVITY_AIRDROP ` & `ACTIVITY_TENCENT_WEIBO`
+* Added callback on custom activities
+
+**v1.7.0**  
+
+* Added support iOS7
 
 **v1.6.2**  
 
@@ -283,11 +374,11 @@ Please check the *Example* section in the file.
 
 **v1.1**    
 
-* SLRequest methods implemented. `requestFacebook()` and `requestTwitter()`. 
+* SLRequest methods implemented. `requestFacebook()` and `requestTwitter()`.
 
 **v1.0**    
 
-* Initial Implementation of SLComposeViewController. 
+* Initial Implementation of SLComposeViewController.
 
 
 ## Author
@@ -300,7 +391,7 @@ twitter: @nappdev
 ## Contributors
 
 **Christopher Beloch**  
-twitter: @C_BHole
+twitter: @CBeloch
 
 **Jongeun Lee**  
 twitter: @yomybaby
@@ -310,6 +401,12 @@ twitter: @dan_tamas
 
 **Rafael Kellermann Streit**  
 twitter: @rafaelks
+
+**Joseandro Luiz**  
+twitter: @joseandroluiz
+
+**Carlos Zinato**  
+twitter: @chmiiller
 
 ## License
 

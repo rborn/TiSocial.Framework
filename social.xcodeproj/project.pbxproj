@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 45;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -31,7 +31,9 @@
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 		B603B54D1700E18B002E4196 /* NappCustomActivity.h in Headers */ = {isa = PBXBuildFile; fileRef = B603B54B1700E18B002E4196 /* NappCustomActivity.h */; };
 		B603B54E1700E18B002E4196 /* NappCustomActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = B603B54C1700E18B002E4196 /* NappCustomActivity.m */; };
-		B66EFA9116137E8100A5A9B4 /* Accounts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B66EFA9016137E8100A5A9B4 /* Accounts.framework */; };
+		B663690D17C29D03008AD704 /* Accounts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B66EFA9016137E8100A5A9B4 /* Accounts.framework */; };
+		DE2F4E581A41FA5B002B4204 /* NappItemProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = DE2F4E561A41FA5B002B4204 /* NappItemProvider.m */; };
+		DE2F4E591A41FA5B002B4204 /* NappItemProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = DE2F4E571A41FA5B002B4204 /* NappItemProvider.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,12 +53,16 @@
 		24DE9E0F11C5FE74003F90F6 /* DkNappSocialModuleAssets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DkNappSocialModuleAssets.h; path = Classes/DkNappSocialModuleAssets.h; sourceTree = "<group>"; };
 		24DE9E1011C5FE74003F90F6 /* DkNappSocialModuleAssets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DkNappSocialModuleAssets.m; path = Classes/DkNappSocialModuleAssets.m; sourceTree = "<group>"; };
 		69B6065715A4DC4800AB991D /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
+		8FE4A5C81ADE7CCD009C9EED /* module.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = module.xcconfig; sourceTree = "<group>"; };
+		8FE4A5C91ADE7CDB009C9EED /* manifest */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = manifest; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* DkNappSocial_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DkNappSocial_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		B603B54B1700E18B002E4196 /* NappCustomActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NappCustomActivity.h; path = Classes/NappCustomActivity.h; sourceTree = "<group>"; };
 		B603B54C1700E18B002E4196 /* NappCustomActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NappCustomActivity.m; path = Classes/NappCustomActivity.m; sourceTree = "<group>"; };
 		B66EFA9016137E8100A5A9B4 /* Accounts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accounts.framework; path = System/Library/Frameworks/Accounts.framework; sourceTree = SDKROOT; };
 		D2AAC07E0554694100DB518D /* libDkNappSocial.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libDkNappSocial.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE2F4E561A41FA5B002B4204 /* NappItemProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NappItemProvider.m; path = Classes/NappItemProvider.m; sourceTree = "<group>"; };
+		DE2F4E571A41FA5B002B4204 /* NappItemProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NappItemProvider.h; path = Classes/NappItemProvider.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,8 +70,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B66EFA9116137E8100A5A9B4 /* Accounts.framework in Frameworks */,
 				AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */,
+				B663690D17C29D03008AD704 /* Accounts.framework in Frameworks */,
 				69B6065A15A4DC5600AB991D /* Social.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -84,7 +90,6 @@
 		0867D691FE84028FC02AAC07 /* social */ = {
 			isa = PBXGroup;
 			children = (
-				B66EFA9016137E8100A5A9B4 /* Accounts.framework */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				0867D69AFE84028FC02AAC07 /* Frameworks */,
@@ -96,6 +101,7 @@
 		0867D69AFE84028FC02AAC07 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B66EFA9016137E8100A5A9B4 /* Accounts.framework */,
 				69B6065715A4DC4800AB991D /* Social.framework */,
 				AACBBE490F95108600F1A2B1 /* Foundation.framework */,
 			);
@@ -105,6 +111,8 @@
 		08FB77AEFE84172EC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				DE2F4E561A41FA5B002B4204 /* NappItemProvider.m */,
+				DE2F4E571A41FA5B002B4204 /* NappItemProvider.h */,
 				24DE9E0F11C5FE74003F90F6 /* DkNappSocialModuleAssets.h */,
 				24DE9E1011C5FE74003F90F6 /* DkNappSocialModuleAssets.m */,
 				24DD6CF71134B3F500162E58 /* DkNappSocialModule.h */,
@@ -118,6 +126,8 @@
 		32C88DFF0371C24200C91783 /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				8FE4A5C91ADE7CDB009C9EED /* manifest */,
+				8FE4A5C81ADE7CCD009C9EED /* module.xcconfig */,
 				AA747D9E0F9514B9006C5449 /* DkNappSocial_Prefix.pch */,
 				24DD6D1B1134B66800162E58 /* titanium.xcconfig */,
 			);
@@ -133,6 +143,7 @@
 			files = (
 				AA747D9F0F9514B9006C5449 /* DkNappSocial_Prefix.pch in Headers */,
 				24DD6CF91134B3F500162E58 /* DkNappSocialModule.h in Headers */,
+				DE2F4E591A41FA5B002B4204 /* NappItemProvider.h in Headers */,
 				24DE9E1111C5FE74003F90F6 /* DkNappSocialModuleAssets.h in Headers */,
 				B603B54D1700E18B002E4196 /* NappCustomActivity.h in Headers */,
 			);
@@ -163,8 +174,11 @@
 /* Begin PBXProject section */
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+			};
 			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "social" */;
-			compatibilityVersion = "Xcode 3.1";
+			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
@@ -207,6 +221,7 @@
 			files = (
 				24DD6CFA1134B3F500162E58 /* DkNappSocialModule.m in Sources */,
 				24DE9E1211C5FE74003F90F6 /* DkNappSocialModuleAssets.m in Sources */,
+				DE2F4E581A41FA5B002B4204 /* NappItemProvider.m in Sources */,
 				B603B54E1700E18B002E4196 /* NappCustomActivity.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -226,15 +241,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 24DD6D1B1134B66800162E58 /* titanium.xcconfig */;
 			buildSettings = {
-				ARCHS = (
-					armv6,
-					armv7,
-				);
-				"ARCHS[sdk=iphoneos*]" = (
-					armv6,
-					armv7,
-				);
-				"ARCHS[sdk=iphonesimulator*]" = i386;
+				ARCHS = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphoneos*]" = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DSTROOT = /tmp/DkNappSocial.dst;
@@ -243,6 +252,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = DkNappSocial_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
+				GCC_THUMB_SUPPORT = NO;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = NO;
@@ -254,6 +264,7 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = "";
 				OTHER_CFLAGS = (
 					"-DDEBUG",
@@ -267,6 +278,7 @@
 				SDKROOT = iphoneos;
 				TITANIUM_SDK_VERSION = 3.1.1.GA;
 				USER_HEADER_SEARCH_PATHS = "";
+				VALID_ARCHS = "arm64 armv7 armv7s i386 x86_64";
 			};
 			name = Debug;
 		};
@@ -275,21 +287,16 @@
 			baseConfigurationReference = 24DD6D1B1134B66800162E58 /* titanium.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = (
-					armv6,
-					armv7,
-				);
-				"ARCHS[sdk=iphoneos*]" = (
-					armv6,
-					armv7,
-				);
-				"ARCHS[sdk=iphonesimulator*]" = i386;
+				ARCHS = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphoneos*]" = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
 				DSTROOT = /tmp/DkNappSocial.dst;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = DkNappSocial_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
+				GCC_THUMB_SUPPORT = NO;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = NO;
@@ -301,7 +308,8 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				"IPHONEOS_DEPLOYMENT_TARGET[sdk=iphoneos*]" = 7.0;
 				LIBRARY_SEARCH_PATHS = "";
 				OTHER_CFLAGS = "-DTI_POST_1_2";
 				OTHER_LDFLAGS = "-ObjC";
@@ -310,6 +318,7 @@
 				SDKROOT = iphoneos;
 				TITANIUM_SDK_VERSION = 3.1.1.GA;
 				USER_HEADER_SEARCH_PATHS = "";
+				VALID_ARCHS = "arm64 armv7 armv7s i386 x86_64";
 			};
 			name = Release;
 		};
@@ -317,15 +326,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 24DD6D1B1134B66800162E58 /* titanium.xcconfig */;
 			buildSettings = {
-				ARCHS = (
-					armv6,
-					armv7,
-				);
-				"ARCHS[sdk=iphoneos*]" = (
-					armv6,
-					armv7,
-				);
-				"ARCHS[sdk=iphonesimulator*]" = i386;
+				"ARCHS[sdk=iphoneos*]" = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DSTROOT = /tmp/DkNappSocial.dst;
@@ -334,6 +336,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = DkNappSocial_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
+				GCC_THUMB_SUPPORT = NO;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = NO;
@@ -345,6 +348,9 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-DDEBUG",
 					"-DTI_POST_1_2",
@@ -353,9 +359,11 @@
 				PRODUCT_NAME = DkNappSocial;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include;
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = iphoneos;
 				USER_HEADER_SEARCH_PATHS = "";
+				VALID_ARCHS = "arm64 armv7 armv7s i386";
 			};
 			name = Debug;
 		};
@@ -364,21 +372,15 @@
 			baseConfigurationReference = 24DD6D1B1134B66800162E58 /* titanium.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = (
-					armv6,
-					armv7,
-				);
-				"ARCHS[sdk=iphoneos*]" = (
-					armv6,
-					armv7,
-				);
-				"ARCHS[sdk=iphonesimulator*]" = i386;
+				"ARCHS[sdk=iphoneos*]" = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
 				DSTROOT = /tmp/DkNappSocial.dst;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = DkNappSocial_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
+				GCC_THUMB_SUPPORT = NO;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = NO;
@@ -390,13 +392,16 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				MACH_O_TYPE = staticlib;
 				OTHER_CFLAGS = "-DTI_POST_1_2";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = DkNappSocial;
+				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include;
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = iphoneos;
 				USER_HEADER_SEARCH_PATHS = "";
+				VALID_ARCHS = "arm64 armv7 armv7s i386";
 			};
 			name = Release;
 		};
@@ -407,6 +412,7 @@
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_THUMB_SUPPORT = NO;
 				PRODUCT_NAME = "Build & test";
 			};
 			name = Debug;
@@ -418,6 +424,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_THUMB_SUPPORT = NO;
 				PRODUCT_NAME = "Build & test";
 				ZERO_LINK = NO;
 			};
